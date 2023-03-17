@@ -1,6 +1,7 @@
 import requests
 import os
 import zipfile
+from PyPDF2 import PdfReader
 
 pdf_url = 'https://www.orimi.com/pdf-test.pdf'
 xlsx_url = 'https://freetestdata.com/wp-content/uploads/2021/09/Free_Test_Data_100KB_XLSX.xlsx'
@@ -26,27 +27,33 @@ def test_download():
 
 
 def test_acrivate_files_to_zip():
-
     try:
         os.mkdir('resourses')
     except:
         print('resourses уже создана')
 
-    path = './resourses/'
-    file_dir = os.listdir(path)
+    path = './resourses'
     with zipfile.ZipFile('testarhive.zip', 'w') as zf:
-        for file in file_dir:
-            add_file = os.path.join(path, file)
-            zf.write(add_file)
+        zf.write(f'{path}/{pdf_filename}', 'pdf_filename.pdf')
+        zf.write(f'{path}/{csv_filename}', 'csv_filename.csv')
+        zf.write(f'{path}/{xlsx_filename}', 'xlsx_filename.xlsx')
 
 
 def test_read_pdf():
-    pass
+    with zipfile.ZipFile('testarhive.zip') as zf:
+        reader = PdfReader(zf.read('pdf_filename.pdf'))
+        number_of_pages = len(reader.pages)
+        assert number_of_pages == 1
+
 
 
 def test_read_xlsx():
+
+    file = 'xlsx_filename.xlsx'
     pass
 
 
 def test_read_csv():
+
+    file = 'csv_filename.xlsx'
     pass
