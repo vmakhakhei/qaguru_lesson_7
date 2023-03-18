@@ -1,15 +1,11 @@
-import requests
-import os
-import zipfile
-from PyPDF2 import PdfReader
+import PyPDF2, requests, os, zipfile, openpyxl, csv
+
 
 pdf_url = 'https://www.orimi.com/pdf-test.pdf'
 xlsx_url = 'https://freetestdata.com/wp-content/uploads/2021/09/Free_Test_Data_100KB_XLSX.xlsx'
-csv_url = 'https://sample-videos.com/csv/Sample-Spreadsheet-100-rows.csv'
 
 pdf_filename = os.path.basename(pdf_url)
 xlsx_filename = os.path.basename(xlsx_url)
-csv_filename = os.path.basename(csv_url)
 
 
 def test_download():
@@ -21,10 +17,6 @@ def test_download():
     with open(f"resourses/{pdf_filename}", "wb") as file_pdf:
         file_pdf.write(response.content)
 
-    response = requests.get(csv_url)
-    with open(f"resourses/{csv_filename}", "wb") as file_csv:
-        file_csv.write(response.content)
-
 
 def test_acrivate_files_to_zip():
     try:
@@ -35,25 +27,34 @@ def test_acrivate_files_to_zip():
     path = './resourses'
     with zipfile.ZipFile('testarhive.zip', 'w') as zf:
         zf.write(f'{path}/{pdf_filename}', 'pdf_filename.pdf')
-        zf.write(f'{path}/{csv_filename}', 'csv_filename.csv')
+        zf.write(f'{path}/username.csv', 'csv_filename.csv')
         zf.write(f'{path}/{xlsx_filename}', 'xlsx_filename.xlsx')
 
 
 def test_read_pdf():
     with zipfile.ZipFile('testarhive.zip') as zf:
-        reader = PdfReader(zf.read('pdf_filename.pdf'))
-        number_of_pages = len(reader.pages)
-        assert number_of_pages == 1
-
+        with zf.open('pdf_filename.pdf') as open_zf:
+            reader = PyPDF2.PdfReader(open_zf)
+            number_of_pages = len(reader.pages)
+            assert number_of_pages == 1
+            text = reader.pages[0].extract_text()
+            assert 'PDF Test File' in text
 
 
 def test_read_xlsx():
-
-    file = 'xlsx_filename.xlsx'
-    pass
-
+    with zipfile.ZipFile('testarhive.zip') as zf:
+        with zf.open('xlsx_filename.xlsx') as open_zf:
+            book = openpyxl.load_workbook(open_zf)
+            sheet = book.active
+            assert 'SR.' in sheet['A1'].value
+            assert 'NAME' in sheet['B1'].value
+            assert 'GENDER' in sheet['C1'].value
 
 def test_read_csv():
-
-    file = 'csv_filename.xlsx'
-    pass
+    with zipfile.ZipFile('testarhive.zip') as zf:
+        with zf.open('csv_filename.csv', 'r') as csvfile:
+            read_csv = csv.reader(csvfile, delimiter=',')
+            count_row = 0
+            for row in read_csv:
+                count_row += 1
+            assert count_row == 10
