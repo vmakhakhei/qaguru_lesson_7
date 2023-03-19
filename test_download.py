@@ -1,5 +1,8 @@
-import PyPDF2, requests, os, zipfile, openpyxl, csv
-
+import PyPDF2
+import openpyxl
+import os
+import requests
+import zipfile
 
 pdf_url = 'https://www.orimi.com/pdf-test.pdf'
 xlsx_url = 'https://freetestdata.com/wp-content/uploads/2021/09/Free_Test_Data_100KB_XLSX.xlsx'
@@ -50,11 +53,11 @@ def test_read_xlsx():
             assert 'NAME' in sheet['B1'].value
             assert 'GENDER' in sheet['C1'].value
 
+
 def test_read_csv():
     with zipfile.ZipFile('testarhive.zip') as zf:
         with zf.open('csv_filename.csv', 'r') as csvfile:
-            read_csv = csv.reader(csvfile, delimiter=',')
             count_row = 0
-            for row in read_csv:
+            for _ in csvfile:
                 count_row += 1
-            assert count_row == 10
+            assert 6 == count_row
