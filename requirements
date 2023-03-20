@@ -2,4 +2,3 @@ pytest
 requirements
 openpyxl
 zipfile
-pytest
