@@ -36,17 +36,17 @@ def test_acrivate_files_to_zip():
 
 def test_read_pdf():
     with zipfile.ZipFile('testarhive.zip') as zf:
-        with zf.open('pdf_filename.pdf') as open_zf:
+        with zf.open('pdf_filename.pdf', 'r') as open_zf:
             reader = PyPDF2.PdfReader(open_zf)
             number_of_pages = len(reader.pages)
             assert number_of_pages == 1
             text = reader.pages[0].extract_text()
-            assert 'PDF Test File' in text
+            assert 'PDF Test File' in text, "Haven't text or file to read"
 
 
 def test_read_xlsx():
     with zipfile.ZipFile('testarhive.zip') as zf:
-        with zf.open('xlsx_filename.xlsx') as open_zf:
+        with zf.open('xlsx_filename.xlsx', 'r') as open_zf:
             book = openpyxl.load_workbook(open_zf)
             sheet = book.active
             assert 'SR.' in sheet['A1'].value
